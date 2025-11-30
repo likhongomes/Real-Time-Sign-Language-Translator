@@ -1,68 +1,69 @@
 import os
-import subprocess
-from urllib.parse import urlparse, parse_qs
-
-# from pytube import YouTube
-
-# def video_id_from_url(url):
-#     if not url.startswith("http"):
-#         url = "https://" + url  # handle 'www.youtube.com/...'
-#     qs = parse_qs(urlparse(url).query)
-#     return qs.get("v", [None])[0]
-
-# def download_youtube(url, out_dir="msasl/raw_videos"):
-#     os.makedirs(out_dir, exist_ok=True)
-#     vid = video_id_from_url(url)
-#     if vid is None:
-#         raise ValueError(f"Cannot parse video id from {url}")
-#     out_path = os.path.join(out_dir, f"{vid}.mp4")
-#     if os.path.exists(out_path):
-#         return out_path  # already downloaded
-
-#     # requires `yt-dlp` installed: pip install yt-dlp
-#     cmd = [
-#         "yt-dlp",
-#         "-f", "mp4",
-#         "-o", out_path,
-#         url
-#     ]
-#     subprocess.run(cmd, check=True)
-#     return out_path
-
-# download_youtube("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
-
-import yt_dlp
 import shutil
+import json
+import yt_dlp
+from moviepy.editor import VideoFileClip
 
+# where to save
+SAVE_PATH = "MS-ASL-Train"
+temp_path = SAVE_PATH + "/untrimmed_videos"
 
-def download_video(url: str, out_dir: str = "downloads"):
-    os.makedirs(out_dir, exist_ok=True)
+if not os.path.exists(SAVE_PATH):
+    os.makedirs(SAVE_PATH)
+if not os.path.exists(temp_path):
+    os.makedirs(temp_path)
 
-    # Check if ffmpeg is available. yt-dlp needs ffmpeg to merge separate
-    # video/audio streams (e.g. bestvideo+bestaudio). If ffmpeg is missing,
-    # request a single-file format to avoid aborting with the error you saw.
-    ffmpeg_installed = shutil.which("ffmpeg") is not None
+try:
+    train_json = open('../MS-ASL/MSASL_train.json')
+    videos = json.load(train_json)
+    train_json.close()
+except Exception as e:
+    print(f"❌ Connection Error: {type(e).__name__}: {e}")
+    exit(1)
 
-    if ffmpeg_installed:
-        format_spec = "bv*+ba/best"  # request best video+audio (may require merging)
-    else:
-        print(
-            "Warning: ffmpeg not found in PATH. Falling back to a single-file format to avoid merging."
-        )
-        # prefer mp4 single-file when available to avoid requiring ffmpeg
-        format_spec = "best[ext=mp4]/best"
+# loop through the videos in the dataset
+num_videos = len(videos)
+for i in range(num_videos):
+    try:
+        # setup reads info from json and creates groups videos by name
+        url = videos[i]['url']
+        start_time = videos[i]['start_time']
+        end_time = videos[i]['end_time']
+        label = videos[i]['label']
+        pretitle = videos[i]['clean_text']
+        video_title = pretitle + str(i)
+        output_title = video_title + ".mp4"
+        temp_file_path = os.path.join(temp_path, video_title + ".mkv")
 
-    # Options for yt-dlp
-    ydl_opts = {
-        "outtmpl": os.path.join(out_dir, "%(title)s.%(ext)s"),
-        "format": format_spec,
-        "noplaylist": True,
-    }
+        folder_path = os.path.join(SAVE_PATH, pretitle)
+        output_path = os.path.join(folder_path, output_title)
 
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([url])
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
 
+        print(f"[{i+1}/{num_videos}] {video_title}...", end=" ")
 
-if __name__ == "__main__":
-    video_url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-    download_video(video_url)
+        # Download with yt-dlp (handles private videos better)
+        ydl_opts = {
+            'format': 'bv*+ba/b',
+            'outtmpl': temp_file_path.replace('.mp4', ''),
+            'quiet': True,
+            'no_warnings': True,
+            'socket_timeout': 30,
+        }
+
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([url])
+
+        print("✅ Downloaded", end=" ")
+
+        # Trim and save
+        clip = VideoFileClip(temp_file_path).subclip(start_time, end_time)
+        clip.write_videofile(output_path, verbose=False, logger=None)
+        clip.close()
+
+        print("✅ Trimmed")
+
+    except Exception as e:
+        print(f"❌ Error on video {i}: {type(e).__name__}: {e}")
+        continue
