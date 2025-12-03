@@ -1,12 +1,14 @@
 import os
 import shutil
 import json
+from typing import Any, Dict, cast
 import yt_dlp
 from moviepy.editor import VideoFileClip
 
 # where to save
 SAVE_PATH = "MS-ASL-Train"
 temp_path = SAVE_PATH + "/untrimmed_videos"
+annotations_path = os.path.join(os.path.dirname(__file__), "MSASL_train.json")
 
 if not os.path.exists(SAVE_PATH):
     os.makedirs(SAVE_PATH)
@@ -14,11 +16,11 @@ if not os.path.exists(temp_path):
     os.makedirs(temp_path)
 
 try:
-    train_json = open('../MS-ASL/MSASL_train.json')
-    videos = json.load(train_json)
-    train_json.close()
+    with open(annotations_path, "r") as train_json:
+        videos = json.load(train_json)
 except Exception as e:
     print(f"❌ Connection Error: {type(e).__name__}: {e}")
+    print(f"Expected annotations at: {annotations_path}")
     exit(1)
 
 # loop through the videos in the dataset
@@ -44,7 +46,7 @@ for i in range(num_videos):
         print(f"[{i+1}/{num_videos}] {video_title}...", end=" ")
 
         # Download with yt-dlp (handles private videos better)
-        ydl_opts = {
+        ydl_opts: Dict[str, Any] = {
             'format': 'bv*+ba/b',
             'outtmpl': temp_file_path.replace('.mp4', ''),
             'quiet': True,
@@ -52,7 +54,7 @@ for i in range(num_videos):
             'socket_timeout': 30,
         }
 
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        with yt_dlp.YoutubeDL(cast(dict[str, object], ydl_opts)) as ydl:
             ydl.download([url])
 
         print("✅ Downloaded", end=" ")
