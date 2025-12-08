@@ -8,7 +8,7 @@ import torch.nn.functional as F
 from torch.nn.utils.rnn import PackedSequence, pack_padded_sequence, pad_packed_sequence
 from typing import Optional, Union
 
-from config import ModelConfig
+from Utils.config import ModelConfig
 
 
 class PositionalEncoding(nn.Module):

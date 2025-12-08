@@ -12,12 +12,12 @@ from typing import List, Tuple, Dict, Optional
 from collections import defaultdict
 import random
 
-from featureExtractor import (
+from Utils.featureExtractor import (
     HandLandmarkExtractor, 
     FeatureCache, 
     normalize_landmarks
 )
-from config import DataConfig, TrainingConfig
+from Utils.config import DataConfig, TrainingConfig
 
 
 class ASLDataset(Dataset):

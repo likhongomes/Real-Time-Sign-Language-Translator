@@ -19,10 +19,10 @@ from sklearn.metrics import confusion_matrix, classification_report
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from config import get_config, DataConfig, ModelConfig
-from dataset import ASLDataset
-from models import create_model
-from featureExtractor import preprocess_dataset, HandLandmarkExtractor
+from Utils.config import get_config, DataConfig, ModelConfig
+from Utils.dataset import ASLDataset
+from Utils.models import create_model
+from Utils.featureExtractor import preprocess_dataset, HandLandmarkExtractor
 
 
 def preprocess_all_data(data_dir: str, cache_dir: str, max_frames: int = 60):
