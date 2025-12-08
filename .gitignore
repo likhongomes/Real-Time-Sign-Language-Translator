@@ -1,1 +1,12 @@
-"hand_landmarker.task" 
+# model file
+hand_landmarker.task
+
+# temporary videos
+MS-ASL-Train/tmp_videos/
+
+# cached landmarks
+landmark_cache/
+
+# Python cache
+__pycache__/
+*.pyc
