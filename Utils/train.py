@@ -22,6 +22,7 @@ from tqdm import tqdm
 from Utils.config import get_config, setup_directories, DataConfig, ModelConfig, TrainingConfig
 from Utils.dataset import ASLDataset, create_data_loaders
 from Utils.models import create_model, ASLRecognitionModel
+from Utils.export_gz import export_checkpoint_gz
 
 
 def set_seed(seed: int):
@@ -314,6 +315,10 @@ def save_checkpoint(
         best_path = os.path.join(checkpoint_dir, 'best_model.pth')
         torch.save(checkpoint, best_path)
         print(f"  New best model saved with accuracy: {best_acc:.4f}")
+
+        gz_path = os.path.join(checkpoint_dir, "best_model.pth.gz")
+        export_checkpoint_gz(checkpoint, gz_path)
+        print(f"  Compressed weights exported to {gz_path}")
 
 
 def load_checkpoint(
