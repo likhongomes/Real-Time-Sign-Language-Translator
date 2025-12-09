@@ -19,9 +19,9 @@ from torch.cuda.amp import GradScaler, autocast
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
-from config import get_config, setup_directories, DataConfig, ModelConfig, TrainingConfig
-from dataset import ASLDataset, create_data_loaders
-from models import create_model, ASLRecognitionModel
+from Utils.config import get_config, setup_directories, DataConfig, ModelConfig, TrainingConfig
+from Utils.dataset import ASLDataset, create_data_loaders
+from Utils.models import create_model, ASLRecognitionModel
 
 
 def set_seed(seed: int):

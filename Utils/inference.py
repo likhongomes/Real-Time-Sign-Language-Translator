@@ -18,9 +18,9 @@ from mediapipe.solutions import hands as mp_hands #type: ignore[import, attr-def
 from mediapipe.solutions import drawing_utils as mp_drawing #type: ignore[import, attr-defined]
 from mediapipe.solutions import drawing_styles as mp_drawing_styles #type: ignore[import, attr-defined]
 
-from config import InferenceConfig, ModelConfig
-from models import create_model
-from featureExtractor import normalize_landmarks
+from Utils.config import InferenceConfig, ModelConfig
+from Utils.models import create_model
+from Utils.featureExtractor import normalize_landmarks
 
 
 class ASLInference:
