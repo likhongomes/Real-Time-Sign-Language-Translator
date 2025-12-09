@@ -30,9 +30,36 @@ python utils.py prepocess
 python train.py
 ```
 6. Evaluate the model using the following command:
+
+### for Transformer model
 ```
-python utils.py evaluate
+python utils.py evaluate \
+    --model checkpoints/transformer_best.pth \
+    --data_dir /path/to/MS-ASL-Test \
+    --json /path/to/MSASL_test.json \
+    --batch_size 32 \
+    --output_dir evaluation_transformer
 ```
+### for LSTM model
+```
+python utils.py evaluate \
+    --model checkpoints/lstm_best.pth \
+    --data_dir /path/to/MS-ASL-Test \
+    --json /path/to/MSASL_test.json \
+    --batch_size 32 \
+    --output_dir evaluation_lstm
+```
+
+### for TCN model
+```
+python utils.py evaluate \
+    --model checkpoints/tcn_best.pth \
+    --data_dir /path/to/MS-ASL-Test \
+    --json /path/to/MSASL_test.json \
+    --batch_size 32 \
+    --output_dir evaluation_tcn
+```
+
 7. Inference using webcam:
 ```
 python inference.py
@@ -108,26 +135,3 @@ Our system operates on video data of people signing, potentially capturing ident
 
 
 
-#for Transformer model
-python utils.py evaluate \
-    --model checkpoints/transformer_best.pth \
-    --data_dir /path/to/MS-ASL-Test \
-    --json /path/to/MSASL_test.json \
-    --batch_size 32 \
-    --output_dir evaluation_transformer
-
-#for LSTM model
-python utils.py evaluate \
-    --model checkpoints/lstm_best.pth \
-    --data_dir /path/to/MS-ASL-Test \
-    --json /path/to/MSASL_test.json \
-    --batch_size 32 \
-    --output_dir evaluation_lstm
-
-#for TCN model
-python utils.py evaluate \
-    --model checkpoints/tcn_best.pth \
-    --data_dir /path/to/MS-ASL-Test \
-    --json /path/to/MSASL_test.json \
-    --batch_size 32 \
-    --output_dir evaluation_tcn
