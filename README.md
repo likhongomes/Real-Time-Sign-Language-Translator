@@ -18,15 +18,25 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 3. Download the MS-ASL dataset by running the following command:
-```python preprocess/downoad.py```
+```
+python preprocess/downoad.py
+```
 4. Preprocess the dataset to extract hand landmarks:
-```python utils.py prepocess```
+```
+python utils.py prepocess
+```
 5. Train the model using the following command:
-```python train.py```
+```
+python train.py
+```
 6. Evaluate the model using the following command:
-```python utils.py evaluate```
+```
+python utils.py evaluate
+```
 7. Inference using webcam:
-```python inference.py```
+```
+python inference.py
+```
 
 ## Introduction
 Despite rapid progress in speech recognition and text based translation, communication between Deaf or Hard of Hearing (DHH) signers and nonsigners still relies heavily on human interpreters. Automatic American Sign Language (ASL) translation is particularly challenging because meaning is encoded not only in discrete handshapes, but also in motion, timing and in full ASL, facial expressions and body posture. Unlike spoken language, where audio can be modeled as a one dimensional signal, ASL requires spatiotemporal knowledge of 2D video and 3D body dynamics. These challenges make it difficult to implement practical ASL translation tools in everyday environments. 
