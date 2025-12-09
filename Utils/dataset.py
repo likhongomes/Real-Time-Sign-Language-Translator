@@ -309,9 +309,9 @@ def create_data_loaders(
     Returns:
         train_loader: DataLoader for training
         val_loader: DataLoader for validation
-        label_mapping: Label to index mapping
+        label_mapping: Label to index mapping (joint over train+val)
     """
-    # Create training dataset
+    # 1) Build train and val datasets with their own provisional mappings
     train_dataset = ASLDataset(
         data_dir=data_config.data_dir,
         json_path=train_json or data_config.json_path,
@@ -323,9 +323,9 @@ def create_data_loaders(
         normalize=True,
         augment=training_config.augment,
         augment_prob=training_config.augment_prob,
+        label_mapping=None,
     )
 
-    # Create validation dataset with same label mapping
     val_dataset = ASLDataset(
         data_dir=data_config.data_dir,
         json_path=val_json or data_config.val_json_path,
@@ -336,9 +336,25 @@ def create_data_loaders(
         cache_dir=data_config.cache_dir,
         normalize=True,
         augment=False,  # No augmentation for validation
-        label_mapping=train_dataset.label_to_idx,
+        label_mapping=None,
     )
 
+    # 2) Build joint label mapping over ALL labels seen in train and val samples
+    all_labels = sorted(
+        {s["label"] for s in train_dataset.samples}
+        | {s["label"] for s in val_dataset.samples}
+    )
+    label_mapping: Dict[str, int] = {label: idx for idx, label in enumerate(all_labels)}
+    idx_to_label: Dict[int, str] = {idx: label for label, idx in label_mapping.items()}
+    num_classes = len(label_mapping)
+
+    # 3) Overwrite both datasets' mappings with the joint mapping
+    for ds in (train_dataset, val_dataset):
+        ds.label_to_idx = label_mapping
+        ds.idx_to_label = idx_to_label
+        ds.num_classes = num_classes
+
+    # 4) Data loaders
     train_loader = DataLoader(
         train_dataset,
         batch_size=training_config.batch_size,
@@ -358,7 +374,7 @@ def create_data_loaders(
         collate_fn=asl_collate_fn,
     )
 
-    return train_loader, val_loader, train_dataset.label_to_idx
+    return train_loader, val_loader, label_mapping
 
 
 def create_split_from_single_json(
